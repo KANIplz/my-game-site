@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>我的游戏库</title>
+  <!-- 想换网站图标：把 favicon.ico 放进 assets/img/，然后把下面这行的注释去掉
+  <link rel="icon" href="assets/img/favicon.ico">
+  -->
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+  <!-- ===== 顶部导航栏 ===== -->
+  <header class="navbar">
+    <div class="nav-inner">
+      <a class="brand" href="#">
+        <span class="brand-logo">G</span>
+        <span class="brand-name" id="siteName">我的游戏库</span>
+      </a>
+      <button class="theme-toggle" id="themeToggle" title="切换深色 / 浅色">
+        <span id="themeIcon">🌙</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ===== 首页大图区 ===== -->
+  <!-- 想改大标题和说明文字：去 data/games.js 里的 SITE_CONFIG -->
+  <section class="hero">
+    <div class="hero-inner">
+      <h1 class="hero-title" id="heroTitle">我的游戏下载站</h1>
+      <p class="hero-desc" id="heroDesc">这里放我收藏的游戏，点击即可跳转到网盘下载。</p>
+      <div class="hero-stats">
+        <div class="stat"><strong id="statGames">0</strong><span>游戏</span></div>
+        <div class="stat"><strong id="statLinks">0</strong><span>下载源</span></div>
+        <div class="stat"><strong id="statCats">0</strong><span>分类</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 搜索 + 分类筛选 ===== -->
+  <section class="toolbar">
+    <div class="toolbar-inner">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="搜索游戏名称或简介…">
+      </div>
+      <div class="filters" id="filters">
+        <!-- 分类按钮由 JS 自动生成 -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 游戏卡片列表（由 JS 根据 data/games.js 自动生成，不用手动改这里） ===== -->
+  <main class="container">
+    <div class="grid" id="gameGrid"></div>
+    <div class="empty" id="emptyState" style="display:none;">没有找到相关游戏 🥲</div>
+  </main>
+
+  <!-- ===== 页脚 ===== -->
+  <footer class="footer">
+    <p id="footerText">本站仅提供网盘链接索引，资源版权归原作者所有。</p>
+    <p class="footer-copy">© <span id="year"></span> <span id="footerName">我的游戏库</span></p>
+  </footer>
+
+  <!-- 复制提示气泡 -->
+  <div class="toast" id="toast"></div>
+
+  <!-- 引入数据文件和脚本（顺序不要变） -->
+  <script src="data/games.js"></script>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

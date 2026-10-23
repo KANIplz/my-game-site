@@ -1,0 +1,193 @@
+/* ============================================================
+ *  网站样式表
+ *  ★ 想换风格，只改下面这一小段「主题变量」即可，其他地方不用动
+ * ============================================================ */
+
+:root {
+  /* ---------- 主题变量：改这里就能全站换风格 ---------- */
+  --bg: #0b0d12;              /* 页面背景色 */
+  --bg-soft: #12151d;         /* 卡片/面板背景 */
+  --border: rgba(255,255,255,.09);
+  --text: #e9ecf5;            /* 主要文字 */
+  --muted: #98a2b8;           /* 次要文字 */
+  --primary: #5b8cff;         /* 主题色：按钮、高亮 */
+  --primary-2: #a855f7;       /* 辅助色：渐变另一端 */
+  --radius: 18px;             /* 圆角大小 */
+  --shadow: 0 10px 30px rgba(0,0,0,.35);
+
+  --bg-grad-1: #5b8cff;       /* 封面占位渐变色 1 */
+  --bg-grad-2: #a855f7;       /* 封面占位渐变色 2 */
+}
+
+/* 浅色主题（点右上角按钮切换，颜色也在这里改） */
+[data-theme="light"] {
+  --bg: #f4f6fb;
+  --bg-soft: #ffffff;
+  --border: rgba(0,0,0,.09);
+  --text: #1a1d29;
+  --muted: #6b7280;
+  --primary: #3b6df6;
+  --primary-2: #8b5cf6;
+  --shadow: 0 10px 30px rgba(0,0,0,.08);
+}
+
+/* ---------- 基础 ---------- */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: "PingFang SC", "Microsoft YaHei", "Segoe UI", system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  transition: background .3s, color .3s;
+}
+
+a { color: inherit; text-decoration: none; }
+
+.container { max-width: 1180px; margin: 0 auto; padding: 0 20px; }
+
+/* ---------- 顶部导航 ---------- */
+.navbar {
+  position: sticky; top: 0; z-index: 50;
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-inner {
+  max-width: 1180px; margin: 0 auto; padding: 14px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; }
+.brand-logo {
+  width: 34px; height: 34px; border-radius: 10px;
+  display: grid; place-items: center;
+  background: linear-gradient(135deg, var(--primary), var(--primary-2));
+  color: #fff; font-weight: 800;
+}
+.theme-toggle {
+  border: 1px solid var(--border); background: var(--bg-soft); color: var(--text);
+  width: 38px; height: 38px; border-radius: 10px; cursor: pointer; font-size: 16px;
+  transition: transform .2s, border-color .2s;
+}
+.theme-toggle:hover { transform: scale(1.06); border-color: var(--primary); }
+
+/* ---------- 首页大图区 ---------- */
+.hero {
+  padding: 70px 20px 50px;
+  background:
+    radial-gradient(900px 400px at 20% -10%, color-mix(in srgb, var(--primary) 26%, transparent), transparent),
+    radial-gradient(700px 350px at 85% 0%, color-mix(in srgb, var(--primary-2) 22%, transparent), transparent);
+  text-align: center;
+}
+.hero-title {
+  font-size: clamp(30px, 5vw, 52px); font-weight: 800; letter-spacing: -.5px;
+  background: linear-gradient(120deg, var(--text), var(--primary));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.hero-desc { margin-top: 14px; color: var(--muted); font-size: 17px; }
+.hero-stats { margin-top: 30px; display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; }
+.stat { display: flex; flex-direction: column; }
+.stat strong { font-size: 28px; color: var(--primary); }
+.stat span { font-size: 13px; color: var(--muted); }
+
+/* ---------- 搜索 / 筛选 ---------- */
+.toolbar { max-width: 1180px; margin: 0 auto; padding: 26px 20px 6px; }
+.toolbar-inner { display: flex; flex-direction: column; gap: 16px; align-items: center; }
+.search-box {
+  display: flex; align-items: center; gap: 10px; width: 100%; max-width: 460px;
+  background: var(--bg-soft); border: 1px solid var(--border);
+  border-radius: 999px; padding: 10px 18px;
+}
+.search-box:focus-within { border-color: var(--primary); }
+.search-icon { opacity: .6; }
+.search-box input {
+  flex: 1; border: none; outline: none; background: transparent;
+  color: var(--text); font-size: 15px; font-family: inherit;
+}
+.filters { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.filter-btn {
+  border: 1px solid var(--border); background: transparent; color: var(--muted);
+  padding: 7px 16px; border-radius: 999px; cursor: pointer; font-size: 14px;
+  transition: all .2s; font-family: inherit;
+}
+.filter-btn:hover { color: var(--text); border-color: var(--primary); }
+.filter-btn.active {
+  background: linear-gradient(135deg, var(--primary), var(--primary-2));
+  color: #fff; border-color: transparent;
+}
+
+/* ---------- 游戏卡片 ---------- */
+.grid {
+  display: grid; gap: 22px; padding: 26px 0 50px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+.card {
+  background: var(--bg-soft); border: 1px solid var(--border);
+  border-radius: var(--radius); overflow: hidden;
+  display: flex; flex-direction: column;
+  transition: transform .25s, box-shadow .25s, border-color .25s;
+}
+.card:hover { transform: translateY(-6px); box-shadow: var(--shadow); border-color: var(--primary); }
+
+.card-cover { position: relative; aspect-ratio: 16 / 10; overflow: hidden; }
+.card-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+/* 没有封面图时用的渐变占位块 */
+.card-cover .fallback {
+  width: 100%; height: 100%;
+  display: grid; place-items: center;
+  font-size: 46px; font-weight: 800; color: #fff;
+  background: linear-gradient(135deg, var(--cover-a, var(--bg-grad-1)), var(--cover-b, var(--bg-grad-2)));
+}
+.card-cover .badge-cat {
+  position: absolute; left: 12px; top: 12px;
+  background: rgba(0,0,0,.55); color: #fff; backdrop-filter: blur(4px);
+  font-size: 12px; padding: 4px 10px; border-radius: 999px;
+}
+
+.card-body { padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
+.card-title { font-size: 17px; font-weight: 700; }
+.card-desc { font-size: 14px; color: var(--muted); flex: 1; }
+.card-meta { display: flex; gap: 12px; font-size: 12px; color: var(--muted); }
+
+/* 下载按钮与提取码 */
+.card-links { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+.link-row { display: flex; gap: 8px; align-items: center; }
+.link-btn {
+  flex: 1; text-align: center;
+  background: linear-gradient(135deg, var(--primary), var(--primary-2));
+  color: #fff; font-size: 14px; font-weight: 600;
+  padding: 9px 12px; border-radius: 10px;
+  transition: filter .2s;
+}
+.link-btn:hover { filter: brightness(1.12); }
+.code-badge {
+  font-size: 12px; color: var(--muted); background: transparent;
+  border: 1px dashed var(--border); border-radius: 8px;
+  padding: 7px 10px; cursor: pointer; white-space: nowrap; font-family: inherit;
+  transition: color .2s, border-color .2s;
+}
+.code-badge:hover { color: var(--primary); border-color: var(--primary); }
+
+/* ---------- 空状态 / 页脚 / 提示 ---------- */
+.empty { text-align: center; color: var(--muted); padding: 40px 0 80px; font-size: 16px; }
+.footer {
+  border-top: 1px solid var(--border); padding: 30px 20px;
+  text-align: center; color: var(--muted); font-size: 13px;
+}
+.footer-copy { margin-top: 6px; opacity: .75; }
+
+.toast {
+  position: fixed; left: 50%; bottom: 40px; transform: translate(-50%, 20px);
+  background: var(--text); color: var(--bg);
+  padding: 10px 20px; border-radius: 999px; font-size: 14px;
+  opacity: 0; pointer-events: none; transition: all .25s; z-index: 99;
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+/* ---------- 手机适配 ---------- */
+@media (max-width: 600px) {
+  .hero { padding: 50px 20px 36px; }
+  .hero-stats { gap: 26px; }
+  .grid { grid-template-columns: 1fr; }
+}
