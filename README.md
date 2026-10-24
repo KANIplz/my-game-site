@@ -35,6 +35,8 @@ python -m http.server 8000
   desc: '一句话简介',
   cover: '',                        // 封面图路径，如 'assets/img/zelda.jpg'；没有就留空 ''
   category: '单机大作',              // 分类，会自动生成顶部筛选按钮
+  tags: ['PC', '中文'],              // 卡片上的小标签，可留空 []
+  rating: 8.5,                      // 评分，显示在封面右上角；不需要就删掉这行
   size: '15.6 GB',                  // 大小（可留空）
   updated: '2026-10-01',            // 更新日期（可留空）
   links: [
@@ -48,7 +50,7 @@ python -m http.server 8000
 - `code` 填提取码；留空则不显示。访客点一下提取码就自动复制
 - 一个游戏可以同时放多个下载源
 
-网站名字、首页大标题、底部文字也在 `data/games.js` 顶部的 `SITE_CONFIG` 里改。
+网站名字、首页大标题、副标题、置顶公告、顶部导航菜单、页脚分组链接，都在 `data/games.js` 顶部的 `SITE_CONFIG` 里改（不需要的项留空即可）。
 
 ### 2. 换配色 / 美化 → `assets/css/style.css`
 

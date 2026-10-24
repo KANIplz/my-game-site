@@ -4,69 +4,91 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>我的游戏库</title>
-  <!-- 想换网站图标：把 favicon.ico 放进 assets/img/，然后把下面这行的注释去掉
+  <!-- 想换网站图标：把 favicon.ico 放进 assets/img/，然后去掉下面这行的注释
   <link rel="icon" href="assets/img/favicon.ico">
   -->
   <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
 
-  <!-- ===== 顶部导航栏 ===== -->
+  <!-- ===== 顶部导航栏（菜单项在 data/games.js 的 navItems 里改） ===== -->
   <header class="navbar">
     <div class="nav-inner">
       <a class="brand" href="#">
-        <span class="brand-logo">G</span>
+        <span class="brand-logo" id="brandLogo">G</span>
         <span class="brand-name" id="siteName">我的游戏库</span>
       </a>
-      <button class="theme-toggle" id="themeToggle" title="切换深色 / 浅色">
-        <span id="themeIcon">🌙</span>
-      </button>
+      <nav class="nav-links" id="navLinks"></nav>
+      <div class="nav-actions">
+        <button class="icon-btn" id="btnRandom" title="随机一部游戏">🎲</button>
+        <button class="icon-btn" id="themeToggle" title="切换深色 / 浅色"><span id="themeIcon">🌙</span></button>
+      </div>
     </div>
   </header>
 
-  <!-- ===== 首页大图区 ===== -->
-  <!-- 想改大标题和说明文字：去 data/games.js 里的 SITE_CONFIG -->
+  <!-- ===== Hero 横幅（文字在 data/games.js 的 SITE_CONFIG 里改） ===== -->
   <section class="hero">
-    <div class="hero-inner">
-      <h1 class="hero-title" id="heroTitle">我的游戏下载站</h1>
-      <p class="hero-desc" id="heroDesc">这里放我收藏的游戏，点击即可跳转到网盘下载。</p>
-      <div class="hero-stats">
-        <div class="stat"><strong id="statGames">0</strong><span>游戏</span></div>
-        <div class="stat"><strong id="statLinks">0</strong><span>下载源</span></div>
-        <div class="stat"><strong id="statCats">0</strong><span>分类</span></div>
-      </div>
+    <span class="hero-tag" id="siteTagline">GAME VAULT</span>
+    <h1 class="hero-title" id="heroTitle">欢迎来到我的游戏库</h1>
+    <p class="hero-subtitle" id="heroSubtitle">一站式游戏资源下载站</p>
+    <p class="hero-desc" id="heroDesc">免费、高质量的游戏资源下载，点击即可跳转网盘。</p>
+    <div class="hero-btns">
+      <button class="btn btn-primary" id="btnRandomHero">🎲 随机一部游戏</button>
+      <a class="btn btn-ghost" href="#games">浏览全部游戏 →</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><strong id="statGames">0</strong><span>游戏</span></div>
+      <div class="stat"><strong id="statLinks">0</strong><span>下载源</span></div>
+      <div class="stat"><strong id="statCats">0</strong><span>分类</span></div>
+    </div>
+  </section>
+
+  <!-- ===== 置顶公告（在 SITE_CONFIG.notice 里改，留空则不显示） ===== -->
+  <section class="notice" id="notice" style="display:none;">
+    <div class="notice-inner">
+      <b>📢 公告</b><span id="noticeText"></span>
     </div>
   </section>
 
   <!-- ===== 搜索 + 分类筛选 ===== -->
-  <section class="toolbar">
-    <div class="toolbar-inner">
-      <div class="search-box">
-        <span class="search-icon">🔍</span>
-        <input type="text" id="searchInput" placeholder="搜索游戏名称或简介…">
-      </div>
-      <div class="filters" id="filters">
-        <!-- 分类按钮由 JS 自动生成 -->
-      </div>
+  <section class="toolbar" id="filters">
+    <div class="search-box">
+      <span>🔍</span>
+      <input type="text" id="searchInput" placeholder="搜索游戏名称或简介…">
     </div>
+    <div class="filters" id="filterBox"></div>
   </section>
 
-  <!-- ===== 游戏卡片列表（由 JS 根据 data/games.js 自动生成，不用手动改这里） ===== -->
-  <main class="container">
+  <!-- ===== 游戏卡片列表（由 JS 自动生成，不用手动改这里） ===== -->
+  <main id="games">
+    <div class="section-head">
+      <h2>全部游戏</h2>
+      <span class="count" id="gameCount">共 0 个</span>
+    </div>
     <div class="grid" id="gameGrid"></div>
     <div class="empty" id="emptyState" style="display:none;">没有找到相关游戏 🥲</div>
   </main>
 
-  <!-- ===== 页脚 ===== -->
+  <!-- ===== 页脚（分组链接在 SITE_CONFIG.footerGroups 里改） ===== -->
   <footer class="footer">
-    <p id="footerText">本站仅提供网盘链接索引，资源版权归原作者所有。</p>
-    <p class="footer-copy">© <span id="year"></span> <span id="footerName">我的游戏库</span></p>
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <div class="brand">
+          <span class="brand-logo" id="footerLogo">G</span>
+          <span class="brand-name" id="footerName">我的游戏库</span>
+        </div>
+        <p id="footerText">本站仅提供网盘链接索引，资源版权归原作者所有。</p>
+      </div>
+      <div id="footerGroups" style="display:contents;"></div>
+    </div>
+    <div class="footer-bottom">
+      <span>© <span id="year"></span> <span id="footerName2">我的游戏库</span></span>
+      <span>Powered by GitHub Pages</span>
+    </div>
   </footer>
 
-  <!-- 复制提示气泡 -->
   <div class="toast" id="toast"></div>
 
-  <!-- 引入数据文件和脚本（顺序不要变） -->
   <script src="data/games.js"></script>
   <script src="assets/js/main.js"></script>
 </body>
