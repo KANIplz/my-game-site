@@ -1,10 +1,12 @@
 /* ============================================================
- *  游戏分享页脚本
+ *  网站脚本（引导页 + 游戏主页，合并在一个页面里）
  *  一般不需要改这里 —— 内容改 data/games.js，样式改 style.css
  * ============================================================ */
 
 (function () {
   const $ = (id) => document.getElementById(id);
+  const body = document.body;
+
   const grid = $('gameGrid');
   const emptyState = $('emptyState');
   const filterBox = $('filterBox');
@@ -35,7 +37,6 @@
     toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2000);
   }
 
-  /* 根据名字生成稳定的色块（没有封面图时用作占位） */
   function gradientOf(name) {
     let hash = 0;
     for (let i = 0; i < name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) >>> 0;
@@ -43,12 +44,86 @@
     return [`hsl(${h} 22% 26%)`, `hsl(${(h + 40) % 360} 18% 14%)`];
   }
 
-  /* ---------- 站点信息、导航、页脚、统计 ---------- */
+  /* ============================================================
+   *  一、引导页（大门）
+   * ============================================================ */
+  function initGate() {
+    const c = cfg();
+    const gate = c.gate || {};
+    const name = c.siteName || '我的游戏库';
+    const tag = c.siteTagline || 'GAME VAULT';
+
+    document.title = name;
+    setText('gateBrand', tag);
+    setText('gateKicker', '// ' + (gate.subtitle || tag));
+    setText('gateTitle', gate.title || name);
+    setText('gateSub', gate.subtitle || tag);
+    setText('gateDesc', gate.desc || '');
+    setText('gateEnterCn', gate.enterText || '进入我的游戏分享页');
+    setText('gateEnterEn', gate.enterEn || 'ENTER');
+    setText('gateNote', gate.note || '');
+
+    /* 背景图片拼贴：没配图就用带编号的几何占位块 */
+    const box = $('gateTiles');
+    if (!box) return;
+    const imgs = (gate.images || []).filter(Boolean);
+    const list = imgs.length ? imgs : [null, null, null, null, null, null, null, null];
+    list.forEach((src, i) => {
+      const tile = document.createElement('div');
+      tile.className = 'gate-tile';
+      if (src) {
+        const img = document.createElement('img');
+        img.src = src;
+        img.alt = '';
+        img.loading = 'lazy';
+        tile.appendChild(img);
+      } else {
+        const ph = document.createElement('div');
+        ph.className = 'ph';
+        const num = document.createElement('span');
+        num.textContent = String(i + 1).padStart(2, '0');
+        ph.appendChild(num);
+        tile.appendChild(ph);
+      }
+      box.appendChild(tile);
+    });
+  }
+
+  /* ---------- 页面切换（带渐变过渡） ---------- */
+  let switching = false;
+
+  function enterVault(targetId) {
+    if (switching) return;
+    switching = true;
+    body.classList.remove('gate-active');
+
+    /* 等淡出动画走完再滚动，避免动画期间跳动 */
+    setTimeout(() => {
+      switching = false;
+      if (targetId) {
+        const el = document.getElementById(targetId);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        window.scrollTo({ top: 0, behavior: 'auto' });
+      }
+    }, 620);
+  }
+
+  function backToGate() {
+    if (switching) return;
+    switching = true;
+    window.scrollTo({ top: 0, behavior: 'auto' });
+    body.classList.add('gate-active');
+    setTimeout(() => { switching = false; }, 620);
+  }
+
+  /* ============================================================
+   *  二、游戏主页
+   * ============================================================ */
   function initSiteInfo() {
     const c = cfg();
     const name = c.siteName || '我的游戏库';
     const tag = c.siteTagline || 'GAME VAULT';
-    document.title = (c.headTitle || '全部游戏') + ' · ' + name;
 
     setText('brandLogo', name.trim().charAt(0));
     setText('brandName', name);
@@ -62,20 +137,34 @@
     setText('footerText', c.footerText || '');
     setText('year', String(new Date().getFullYear()));
 
-    /* 置顶公告：留空则不显示 */
     if (c.notice) {
       $('notice').style.display = '';
       setText('noticeText', c.notice);
     }
 
-    /* 导航菜单 */
-    const nav = $('navLinks');
-    nav.innerHTML = '';
-    (c.navItems || []).forEach((item) => {
-      const a = document.createElement('a');
-      a.href = item.href || '#';
-      a.textContent = item.label;
-      nav.appendChild(a);
+    /* 两处导航：引导页右上角 + 主页顶部 */
+    const items = c.navItems || [];
+    [['gateNav', true], ['navLinks', false]].forEach(([id, isGate]) => {
+      const nav = $(id);
+      if (!nav) return;
+      nav.innerHTML = '';
+      items.forEach((item) => {
+        const a = document.createElement('a');
+        a.href = item.href || '#';
+        a.textContent = item.label;
+        a.dataset.target = (item.href || '').replace('#', '');
+        if (isGate) {
+          /* 引导页上的导航：点了就过渡到主页并滚到对应位置 */
+          a.addEventListener('click', (e) => {
+            const href = item.href || '';
+            if (href.startsWith('#') && href.length > 1) {
+              e.preventDefault();
+              enterVault(href.slice(1));
+            }
+          });
+        }
+        nav.appendChild(a);
+      });
     });
 
     /* 页脚分组链接 */
@@ -97,7 +186,7 @@
       fg.appendChild(col);
     });
 
-    /* 统计数字 */
+    /* 统计 */
     const list = allGames();
     const linkCount = list.reduce((n, g) => n + (g.links || []).filter((l) => l && l.url).length, 0);
     const cats = new Set(list.map((g) => g.category).filter(Boolean));
@@ -106,7 +195,6 @@
     setText('statCats', String(cats.size));
   }
 
-  /* ---------- 分类筛选按钮 ---------- */
   function initFilters() {
     const cats = ['全部', ...new Set(allGames().map((g) => g.category).filter(Boolean))];
     filterBox.innerHTML = '';
@@ -123,7 +211,6 @@
     });
   }
 
-  /* ---------- 渲染卡片 ---------- */
   function render() {
     const keyword = (searchInput.value || '').trim().toLowerCase();
     const total = allGames().length;
@@ -145,7 +232,6 @@
     const card = document.createElement('article');
     card.className = 'card';
 
-    /* 封面（3:4 竖版）：有图用图，没图用机能风几何块 + 首个字 */
     const cover = document.createElement('div');
     cover.className = 'card-cover';
     if (g.cover) {
@@ -180,21 +266,20 @@
     idx.textContent = String(index + 1).padStart(2, '0');
     cover.appendChild(idx);
 
-    /* 文字信息 */
-    const body = document.createElement('div');
-    body.className = 'card-body';
+    const bodyEl = document.createElement('div');
+    bodyEl.className = 'card-body';
 
     const title = document.createElement('h3');
     title.className = 'card-title';
     title.textContent = g.name || '未命名';
     title.title = g.name || '';
-    body.appendChild(title);
+    bodyEl.appendChild(title);
 
     if (g.desc) {
       const desc = document.createElement('p');
       desc.className = 'card-desc';
       desc.textContent = g.desc;
-      body.appendChild(desc);
+      bodyEl.appendChild(desc);
     }
 
     if ((g.tags || []).length) {
@@ -205,7 +290,7 @@
         s.textContent = t;
         tags.appendChild(s);
       });
-      body.appendChild(tags);
+      bodyEl.appendChild(tags);
     }
 
     if (g.size || g.updated) {
@@ -213,10 +298,9 @@
       meta.className = 'card-meta';
       if (g.size) meta.appendChild(span(g.size));
       if (g.updated) meta.appendChild(span(g.updated));
-      body.appendChild(meta);
+      bodyEl.appendChild(meta);
     }
 
-    /* 下载链接 + 提取码 */
     const linksWrap = document.createElement('div');
     linksWrap.className = 'card-links';
     (g.links || []).filter((l) => l && l.url).forEach((l) => {
@@ -241,9 +325,9 @@
       }
       linksWrap.appendChild(row);
     });
-    body.appendChild(linksWrap);
+    bodyEl.appendChild(linksWrap);
 
-    card.append(cover, body);
+    card.append(cover, bodyEl);
     return card;
   }
 
@@ -275,9 +359,23 @@
     document.body.removeChild(ta);
   }
 
-  /* ---------- 启动 ---------- */
+  /* ============================================================
+   *  三、启动
+   * ============================================================ */
+  initGate();
   initSiteInfo();
   initFilters();
   render();
+
+  /* 事件绑定 */
   searchInput.addEventListener('input', render);
+  $('btnEnter').addEventListener('click', () => enterVault());
+  $('btnGate').addEventListener('click', backToGate);
+  $('btnHome').addEventListener('click', (e) => { e.preventDefault(); backToGate(); });
+
+  /* 直接带 #games / #filters 打开时，跳过引导页 */
+  const hashId = (location.hash || '').replace('#', '');
+  if (hashId === 'games' || hashId === 'filters') {
+    body.classList.remove('gate-active');
+  }
 })();

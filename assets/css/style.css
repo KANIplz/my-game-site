@@ -58,9 +58,25 @@ button { font-family: inherit; cursor: pointer; }
  *  一、大门页（index.html）
  * ============================================================ */
 .gate {
-  position: relative; min-height: 100vh; overflow: hidden;
+  position: fixed; inset: 0; z-index: 100; overflow: hidden;
   display: flex; flex-direction: column;
   background: var(--bg);
+  /* 切换到主页时的渐变过渡（改数值可调快慢） */
+  transition: opacity .7s ease, transform .7s ease, visibility .7s;
+}
+/* 进入主页后：引导页淡出并轻微放大消失 */
+body:not(.gate-active) .gate {
+  opacity: 0; transform: scale(1.08); visibility: hidden; pointer-events: none;
+}
+/* 引导页显示时，锁住主页的滚动 */
+body.gate-active { overflow: hidden; }
+
+/* 主页内容的入场过渡：淡入 + 上移 */
+.vault { opacity: 0; transform: translateY(28px); transition: opacity .8s ease .12s, transform .8s ease .12s; }
+body:not(.gate-active) .vault { opacity: 1; transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .gate, .vault { transition-duration: .01s; }
 }
 
 /* 背景层：半透明图片拼贴 */
@@ -107,6 +123,16 @@ button { font-family: inherit; cursor: pointer; }
 .gate-bottom { margin-top: auto; border-top: 1px solid var(--border); }
 .gate-brand { font-size: 13px; letter-spacing: .34em; font-weight: 700; }
 .gate-code { color: var(--cyan); }
+
+/* 右上角横向导航 */
+.gate-right { display: flex; align-items: center; gap: 16px; }
+.gate-nav { display: flex; gap: 4px; }
+.gate-nav a {
+  font-size: 12px; letter-spacing: .12em; color: var(--muted);
+  border: 1px solid transparent; padding: 7px 14px;
+  clip-path: var(--clip-sm); transition: color .2s, border-color .2s, background .2s;
+}
+.gate-nav a:hover { color: var(--text); border-color: var(--primary); background: rgba(255,77,26,.12); }
 
 /* 大门页中央 */
 .gate-center {
@@ -350,4 +376,7 @@ button { font-family: inherit; cursor: pointer; }
   .footer-inner { grid-template-columns: 1fr 1fr; }
   .gate-cross { display: none; }
   .gate-enter { padding: 14px 24px; gap: 12px; }
+  .gate-top { padding: 16px; }
+  .gate-code { display: none; }
+  .gate-nav a { padding: 6px 10px; font-size: 11px; }
 }

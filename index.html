@@ -9,14 +9,16 @@
   -->
   <link rel="stylesheet" href="assets/css/style.css">
 </head>
-<body>
+<body class="gate-active">
 
-<!-- ===== 大门页：打开网站先看到这里，点中间按钮进入游戏分享页 ===== -->
-<div class="gate">
+<!-- ============================================================
+     引导页（大门）：打开网站先看到这里
+     点中间按钮、或右上角导航，渐变过渡到下面的游戏主页
+     ============================================================ -->
+<div class="gate" id="gate">
 
   <!-- 背景：半透明图片拼贴（图片在 data/games.js 的 gate.images 里配置） -->
   <div class="gate-tiles" id="gateTiles"></div>
-  <!-- 机能风装饰：网格线、暗角、扫描线、四角十字 -->
   <div class="gate-lines"></div>
   <div class="gate-vignette"></div>
   <div class="gate-scan"></div>
@@ -27,7 +29,11 @@
 
   <header class="gate-top">
     <span class="gate-brand" id="gateBrand">GAME VAULT</span>
-    <span class="mono gate-code">01 // GATE</span>
+    <div class="gate-right">
+      <!-- 右上角横向导航（菜单项在 data/games.js 的 navItems 里改） -->
+      <nav class="gate-nav" id="gateNav"></nav>
+      <span class="mono gate-code">01 // GATE</span>
+    </div>
   </header>
 
   <main class="gate-center">
@@ -36,11 +42,11 @@
     <p class="gate-sub" id="gateSub">GAME VAULT</p>
     <p class="gate-desc" id="gateDesc">精选游戏资源 · 网盘直链下载</p>
 
-    <a class="gate-enter" href="games.html">
+    <button class="gate-enter" id="btnEnter" type="button">
       <span class="ge-cn" id="gateEnterCn">进入我的游戏分享页</span>
       <span class="ge-en" id="gateEnterEn">ENTER</span>
       <span class="ge-arrow">›</span>
-    </a>
+    </button>
   </main>
 
   <footer class="gate-bottom">
@@ -49,7 +55,87 @@
   </footer>
 </div>
 
+<!-- ============================================================
+     游戏主页（从引导页渐变过渡进来）
+     ============================================================ -->
+<div class="vault" id="vault">
+
+  <!-- 顶部导航 -->
+  <header class="navbar">
+    <div class="nav-inner">
+      <a class="brand" id="btnHome" href="#" title="回到引导页">
+        <span class="brand-logo" id="brandLogo">G</span>
+        <span class="brand-text">
+          <b id="brandName">我的游戏库</b>
+          <span id="brandTag">GAME VAULT</span>
+        </span>
+      </a>
+      <nav class="nav-links" id="navLinks"></nav>
+      <button class="nav-back" id="btnGate" type="button">← 返回大门</button>
+    </div>
+  </header>
+
+  <!-- 页面头部 -->
+  <section class="page-head">
+    <span class="mono head-code">02 // VAULT</span>
+    <h1 class="head-title" id="headTitle">全部游戏</h1>
+    <p class="head-sub" id="headSub">点击卡片上的按钮即可跳转网盘下载。</p>
+    <div class="head-stats">
+      <div><b id="statGames">0</b><span>Games</span></div>
+      <div><b id="statLinks">0</b><span>Links</span></div>
+      <div><b id="statCats">0</b><span>Tags</span></div>
+    </div>
+  </section>
+
+  <!-- 置顶公告（在 SITE_CONFIG.notice 里填文字才会显示） -->
+  <section class="notice" id="notice" style="display:none;">
+    <div class="notice-inner"><b>// NOTICE</b><span id="noticeText"></span></div>
+  </section>
+
+  <!-- 搜索 + 分类筛选 -->
+  <section class="toolbar" id="filters">
+    <div class="search-box">
+      <span class="mono">SEARCH</span>
+      <input type="text" id="searchInput" placeholder="搜索游戏名称或简介…">
+    </div>
+    <div class="filters" id="filterBox"></div>
+  </section>
+
+  <!-- 游戏卡片列表（由 JS 自动生成） -->
+  <main id="games">
+    <div class="section-head">
+      <h2>GAME LIST</h2>
+      <span class="count" id="gameCount">共 0 个</span>
+    </div>
+    <div class="grid" id="gameGrid"></div>
+    <div class="empty" id="emptyState" style="display:none;">NO RESULT // 没有找到相关游戏</div>
+  </main>
+
+  <!-- 页脚 -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <div class="brand">
+          <span class="brand-logo" id="footerLogo">G</span>
+          <span class="brand-text">
+            <b id="footerName">我的游戏库</b>
+            <span id="footerTag">GAME VAULT</span>
+          </span>
+        </div>
+        <p id="footerText">本站仅提供网盘链接索引，资源版权归原作者所有。</p>
+      </div>
+      <div id="footerGroups" style="display:contents;"></div>
+    </div>
+    <div class="footer-bottom">
+      <span>© <span id="year"></span> <span id="footerName2">我的游戏库</span></span>
+      <span>Powered by GitHub Pages</span>
+    </div>
+  </footer>
+</div>
+
+<div class="toast" id="toast"></div>
+
 <script src="data/games.js"></script>
-<script src="assets/js/gate.js"></script>
+<script src="assets/js/main.js"></script>
 </body>
 </html>
