@@ -25,6 +25,26 @@ python -m http.server 8000
 
 ## 二、日常维护：只改这两个文件
 
+### 0. 大门页背景图 → `data/games.js` 的 `gate.images`
+
+把图片放进 `assets/img/`（建议 4~8 张，横竖都行），然后在 `data/games.js` 顶部填路径：
+
+```js
+gate: {
+  images: [
+    'assets/img/gate1.jpg',
+    'assets/img/gate2.jpg'
+  ],
+  title: '我的游戏库',        // 大门页大标题
+  subtitle: 'GAME VAULT',    // 大标题下的英文
+  desc: '精选游戏资源 · 网盘直链下载',
+  enterText: '进入我的游戏分享页'  // 中间按钮文字
+}
+```
+
+图片会自动拼贴铺满整屏并半透明化。**不填也能用**——会显示机能风的几何占位块。
+半透明程度在 `style.css` 的 `.gate-tiles` 里改 `opacity` 数值（默认 `.32`）。
+
 ### 1. 加游戏 / 改下载链接 → `data/games.js`
 
 打开 `data/games.js`，复制一段 `{ ... }` 改一改即可：
@@ -127,12 +147,14 @@ git push
 ## 五、文件结构
 
 ```
-├── index.html              网页主体
+├── index.html              大门页（打开网站第一眼，点按钮进入游戏页）
+├── games.html              游戏分享页（游戏列表 + 下载）
 ├── assets/
 │   ├── css/style.css       样式（改配色看这里）
-│   ├── js/main.js          交互逻辑（一般不用改）
-│   └── img/                封面图放这里
-├── data/games.js           ★ 游戏内容与下载链接（改内容看这里）
+│   ├── js/main.js          游戏页交互（一般不用改）
+│   ├── js/gate.js          大门页交互（一般不用改）
+│   └── img/                图片放这里（大门背景图、游戏封面）
+├── data/games.js           ★ 站点文字、游戏内容与下载链接（改内容看这里）
 ├── .gitignore              忽略规则（不用改）
 ├── .nojekyll               GitHub Pages 发布标记（不要删）
 └── README.md               本说明

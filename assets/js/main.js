@@ -1,5 +1,5 @@
 /* ============================================================
- *  网站交互脚本
+ *  游戏分享页脚本
  *  一般不需要改这里 —— 内容改 data/games.js，样式改 style.css
  * ============================================================ */
 
@@ -12,7 +12,6 @@
   const toastEl = $('toast');
 
   let activeCategory = '全部';
-  let currentList = [];   // 当前显示的游戏列表（随机功能用）
 
   /* ---------- 数据读取（做了容错，写错也不会白屏） ---------- */
   function cfg() {
@@ -36,28 +35,30 @@
     toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2000);
   }
 
-  /* 根据名字生成稳定的渐变色（无封面图时用作占位） */
+  /* 根据名字生成稳定的色块（没有封面图时用作占位） */
   function gradientOf(name) {
     let hash = 0;
     for (let i = 0; i < name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) >>> 0;
-    const h1 = hash % 360;
-    return [`hsl(${h1} 70% 56%)`, `hsl(${(h1 + 55) % 360} 70% 50%)`];
+    const h = hash % 360;
+    return [`hsl(${h} 22% 26%)`, `hsl(${(h + 40) % 360} 18% 14%)`];
   }
 
   /* ---------- 站点信息、导航、页脚、统计 ---------- */
   function initSiteInfo() {
     const c = cfg();
     const name = c.siteName || '我的游戏库';
-    document.title = name;
-    setText('siteName', name);
+    const tag = c.siteTagline || 'GAME VAULT';
+    document.title = (c.headTitle || '全部游戏') + ' · ' + name;
+
+    setText('brandLogo', name.trim().charAt(0));
+    setText('brandName', name);
+    setText('brandTag', tag);
+    setText('footerLogo', name.trim().charAt(0));
     setText('footerName', name);
     setText('footerName2', name);
-    setText('brandLogo', name.trim().charAt(0));
-    setText('footerLogo', name.trim().charAt(0));
-    setText('siteTagline', c.siteTagline || 'GAME VAULT');
-    setText('heroTitle', c.heroTitle || '欢迎来到我的游戏库');
-    setText('heroSubtitle', c.heroSubtitle || '');
-    setText('heroDesc', c.heroDesc || '');
+    setText('footerTag', tag);
+    setText('headTitle', c.headTitle || '全部游戏');
+    setText('headSub', c.headSub || '');
     setText('footerText', c.footerText || '');
     setText('year', String(new Date().getFullYear()));
 
@@ -96,7 +97,7 @@
       fg.appendChild(col);
     });
 
-    /* 顶部统计数字 */
+    /* 统计数字 */
     const list = allGames();
     const linkCount = list.reduce((n, g) => n + (g.links || []).filter((l) => l && l.url).length, 0);
     const cats = new Set(list.map((g) => g.category).filter(Boolean));
@@ -125,25 +126,26 @@
   /* ---------- 渲染卡片 ---------- */
   function render() {
     const keyword = (searchInput.value || '').trim().toLowerCase();
-    currentList = allGames().filter((g) => {
+    const total = allGames().length;
+
+    const list = allGames().filter((g) => {
       const matchCat = activeCategory === '全部' || g.category === activeCategory;
       const text = `${g.name || ''} ${g.desc || ''} ${g.category || ''} ${(g.tags || []).join(' ')}`.toLowerCase();
       return matchCat && (!keyword || text.includes(keyword));
     });
 
     grid.innerHTML = '';
-    emptyState.style.display = currentList.length ? 'none' : 'block';
-    currentList.forEach((g) => grid.appendChild(buildCard(g)));
+    emptyState.style.display = list.length ? 'none' : 'block';
+    list.forEach((g, i) => grid.appendChild(buildCard(g, i)));
 
-    const total = allGames().length;
-    setText('gameCount', currentList.length === total ? `共 ${total} 个` : `${currentList.length} / ${total} 个`);
+    setText('gameCount', list.length === total ? `共 ${total} 个` : `${list.length} / ${total} 个`);
   }
 
-  function buildCard(g) {
+  function buildCard(g, index) {
     const card = document.createElement('article');
     card.className = 'card';
 
-    /* 封面（3:4 竖版）：有图用图，没图用渐变 + 首个字 */
+    /* 封面（3:4 竖版）：有图用图，没图用机能风几何块 + 首个字 */
     const cover = document.createElement('div');
     cover.className = 'card-cover';
     if (g.cover) {
@@ -173,6 +175,10 @@
       rate.textContent = '★ ' + g.rating;
       cover.appendChild(rate);
     }
+    const idx = document.createElement('span');
+    idx.className = 'card-idx';
+    idx.textContent = String(index + 1).padStart(2, '0');
+    cover.appendChild(idx);
 
     /* 文字信息 */
     const body = document.createElement('div');
@@ -247,19 +253,6 @@
     return s;
   }
 
-  /* ---------- 随机一部游戏 ---------- */
-  function randomGame() {
-    if (!currentList.length) { toast('没有可随机的游戏'); return; }
-    const idx = Math.floor(Math.random() * currentList.length);
-    const card = grid.children[idx];
-    if (card) {
-      card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      card.classList.add('highlight');
-      setTimeout(() => card.classList.remove('highlight'), 2400);
-    }
-    toast('🎲 随机到：' + (currentList[idx].name || '未命名'));
-  }
-
   /* ---------- 复制提取码 ---------- */
   function copyText(text) {
     const done = () => toast('提取码已复制：' + text);
@@ -282,30 +275,9 @@
     document.body.removeChild(ta);
   }
 
-  /* ---------- 深色 / 浅色主题 ---------- */
-  function initTheme() {
-    const saved = localStorage.getItem('site-theme');
-    if (saved) document.documentElement.setAttribute('data-theme', saved);
-    updateIcon();
-    $('themeToggle').addEventListener('click', () => {
-      const cur = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
-      document.documentElement.setAttribute('data-theme', cur);
-      localStorage.setItem('site-theme', cur);
-      updateIcon();
-    });
-  }
-
-  function updateIcon() {
-    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
-    setText('themeIcon', isLight ? '☀️' : '🌙');
-  }
-
   /* ---------- 启动 ---------- */
   initSiteInfo();
   initFilters();
-  initTheme();
   render();
   searchInput.addEventListener('input', render);
-  $('btnRandom').addEventListener('click', randomGame);
-  $('btnRandomHero').addEventListener('click', randomGame);
 })();
