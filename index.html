@@ -17,7 +17,9 @@
      ============================================================ -->
 <div class="gate" id="gate">
 
-  <div class="gate-tiles" id="gateTiles"></div>
+  <!-- 背景：全屏背景图（半透明显示，多张自动轮播；图片在 data/games.js 的 gate.images 里配置） -->
+  <div class="gate-bg" id="gateBg"></div>
+  <div class="gate-bg" id="gateBg2"></div>
   <div class="gate-lines"></div>
   <div class="gate-vignette"></div>
   <div class="gate-scan"></div>
@@ -62,6 +64,11 @@
      游戏主页（从引导页渐变过渡进来）
      ============================================================ -->
 <div class="vault" id="vault">
+
+  <!-- 顶部横幅：一长条图片，左侧显示站名（在 data/games.js 的 banner 里配置） -->
+  <div class="banner" id="banner">
+    <span class="banner-title" id="bannerTitle">KANI分享</span>
+  </div>
 
   <header class="navbar">
     <div class="nav-inner">

@@ -77,30 +77,27 @@
     setText('gateEnterEn', gate.enterEn || 'ENTER');
     setText('gateNote', gate.note || '');
 
-    /* 背景图片拼贴：没配图就用带编号的几何占位块 */
-    const box = $('gateTiles');
-    if (!box) return;
+    /* 全屏背景图：多张自动轮播（6 秒切换）；没配图就用默认几何占位背景 */
+    const layers = [$('gateBg'), $('gateBg2')].filter(Boolean);
+    if (!layers.length) return;
     const imgs = (gate.images || []).filter(Boolean);
-    const list = imgs.length ? imgs : [null, null, null, null, null, null, null, null];
-    list.forEach((src, i) => {
-      const tile = document.createElement('div');
-      tile.className = 'gate-tile';
-      if (src) {
-        const img = document.createElement('img');
-        img.src = src;
-        img.alt = '';
-        img.loading = 'lazy';
-        tile.appendChild(img);
-      } else {
-        const ph = document.createElement('div');
-        ph.className = 'ph';
-        const num = document.createElement('span');
-        num.textContent = String(i + 1).padStart(2, '0');
-        ph.appendChild(num);
-        tile.appendChild(ph);
-      }
-      box.appendChild(tile);
-    });
+    if (!imgs.length) {
+      layers[0].classList.add('show');
+      return;
+    }
+    let cur = 0;
+    layers[0].style.backgroundImage = 'url("' + imgs[0] + '")';
+    layers[0].classList.add('show');
+    if (imgs.length > 1) {
+      setInterval(() => {
+        cur = (cur + 1) % imgs.length;
+        const showEl = layers.find((el) => !el.classList.contains('show'));
+        const hideEl = layers.find((el) => el.classList.contains('show'));
+        showEl.style.backgroundImage = 'url("' + imgs[cur] + '")';
+        showEl.classList.add('show');
+        hideEl.classList.remove('show');
+      }, 6000);
+    }
   }
 
   /* ---------- 引导页 / 主页切换（带渐变过渡） ---------- */
@@ -233,6 +230,12 @@
     setText('headSub', c.headSub || '');
     setText('footerText', c.footerText || '');
     setText('year', String(new Date().getFullYear()));
+
+    /* 顶部横幅：图片 + 左侧站名 */
+    const banner = c.banner || {};
+    setText('bannerTitle', banner.title || name);
+    const bannerEl = $('banner');
+    if (bannerEl && banner.image) bannerEl.style.backgroundImage = 'url("' + banner.image + '")';
 
     if (c.notice) {
       $('notice').style.display = '';
