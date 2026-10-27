@@ -13,11 +13,10 @@
 
 <!-- ============================================================
      引导页（大门）：打开网站先看到这里
-     点中间按钮、或右上角导航，渐变过渡到下面的游戏主页
+     点中间按钮、右上角「检索」或导航，渐变过渡到游戏主页
      ============================================================ -->
 <div class="gate" id="gate">
 
-  <!-- 背景：半透明图片拼贴（图片在 data/games.js 的 gate.images 里配置） -->
   <div class="gate-tiles" id="gateTiles"></div>
   <div class="gate-lines"></div>
   <div class="gate-vignette"></div>
@@ -30,6 +29,10 @@
   <header class="gate-top">
     <span class="gate-brand" id="gateBrand">GAME VAULT</span>
     <div class="gate-right">
+      <!-- 右上角：检索入口 -->
+      <button class="search-btn" id="btnSearchGate" type="button" title="搜索游戏">
+        <span class="sb-icon">⌕</span><span class="sb-text">检索</span>
+      </button>
       <!-- 右上角横向导航（菜单项在 data/games.js 的 navItems 里改） -->
       <nav class="gate-nav" id="gateNav"></nav>
       <span class="mono gate-code">01 // GATE</span>
@@ -60,7 +63,6 @@
      ============================================================ -->
 <div class="vault" id="vault">
 
-  <!-- 顶部导航 -->
   <header class="navbar">
     <div class="nav-inner">
       <a class="brand" id="btnHome" href="#" title="回到引导页">
@@ -71,11 +73,15 @@
         </span>
       </a>
       <nav class="nav-links" id="navLinks"></nav>
-      <button class="nav-back" id="btnGate" type="button">← 返回大门</button>
+      <div class="nav-right">
+        <button class="search-btn" id="btnSearch" type="button" title="搜索游戏">
+          <span class="sb-icon">⌕</span><span class="sb-text">检索</span>
+        </button>
+        <button class="nav-back" id="btnGate" type="button">← 返回大门</button>
+      </div>
     </div>
   </header>
 
-  <!-- 页面头部 -->
   <section class="page-head">
     <span class="mono head-code">02 // VAULT</span>
     <h1 class="head-title" id="headTitle">全部游戏</h1>
@@ -87,21 +93,15 @@
     </div>
   </section>
 
-  <!-- 置顶公告（在 SITE_CONFIG.notice 里填文字才会显示） -->
   <section class="notice" id="notice" style="display:none;">
     <div class="notice-inner"><b>// NOTICE</b><span id="noticeText"></span></div>
   </section>
 
-  <!-- 搜索 + 分类筛选 -->
+  <!-- 分类筛选（搜索已移到右上角的全屏检索界面） -->
   <section class="toolbar" id="filters">
-    <div class="search-box">
-      <span class="mono">SEARCH</span>
-      <input type="text" id="searchInput" placeholder="搜索游戏名称或简介…">
-    </div>
     <div class="filters" id="filterBox"></div>
   </section>
 
-  <!-- 游戏卡片列表（由 JS 自动生成） -->
   <main id="games">
     <div class="section-head">
       <h2>GAME LIST</h2>
@@ -111,7 +111,6 @@
     <div class="empty" id="emptyState" style="display:none;">NO RESULT // 没有找到相关游戏</div>
   </main>
 
-  <!-- 页脚 -->
   <footer class="footer">
     <div class="footer-inner">
       <div class="footer-brand">
@@ -131,6 +130,40 @@
       <span>Powered by GitHub Pages</span>
     </div>
   </footer>
+</div>
+
+<!-- ============================================================
+     全屏检索界面（沉浸搜索）
+     点右上角「检索」打开 → 中心长搜索框 → 搜索后切换到结果视图
+     ============================================================ -->
+<div class="search-layer" id="searchLayer">
+  <div class="search-top">
+    <span class="mono">03 // SEARCH</span>
+    <button class="search-close" id="searchClose" type="button">✕ CLOSE</button>
+  </div>
+
+  <div class="search-stage">
+    <span class="mono search-kicker" id="searchKicker">// DATABASE QUERY</span>
+    <h2 class="search-title" id="searchTitle">在仓库中检索</h2>
+
+    <form class="search-bar" id="searchBar" autocomplete="off">
+      <span class="mono sb-label">SEARCH</span>
+      <input type="text" id="searchInput" placeholder="输入游戏名称、分类或标签…">
+      <button class="search-submit" id="searchSubmit" type="submit">检索 ›</button>
+    </form>
+
+    <div class="search-hot" id="searchHot"></div>
+    <p class="search-tip mono">按 ENTER 检索 · 按 ESC 退出</p>
+  </div>
+
+  <div class="search-results" id="searchResults" hidden>
+    <div class="result-head">
+      <span class="mono">RESULTS // 匹配到 <b id="resultCount">0</b> 个结果</span>
+      <span class="mono" id="resultKeyword"></span>
+    </div>
+    <div class="search-grid" id="searchGrid"></div>
+    <div class="result-empty" id="resultEmpty" hidden>NO MATCH // 仓库里没有找到相关游戏</div>
+  </div>
 </div>
 
 <div class="toast" id="toast"></div>

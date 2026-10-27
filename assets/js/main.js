@@ -1,5 +1,5 @@
 /* ============================================================
- *  网站脚本（引导页 + 游戏主页，合并在一个页面里）
+ *  网站脚本（引导页 + 游戏主页 + 全屏检索）
  *  一般不需要改这里 —— 内容改 data/games.js，样式改 style.css
  * ============================================================ */
 
@@ -10,7 +10,6 @@
   const grid = $('gameGrid');
   const emptyState = $('emptyState');
   const filterBox = $('filterBox');
-  const searchInput = $('searchInput');
   const toastEl = $('toast');
 
   let activeCategory = '全部';
@@ -42,6 +41,21 @@
     for (let i = 0; i < name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) >>> 0;
     const h = hash % 360;
     return [`hsl(${h} 22% 26%)`, `hsl(${(h + 40) % 360} 18% 14%)`];
+  }
+
+  /* 把文字里的 HTML 特殊字符转义，避免破坏页面结构 */
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, (c) => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
+  }
+
+  /* 关键词高亮（把命中的文字标成橙色，其余内容保持转义） */
+  function highlight(text, keyword) {
+    const escaped = escapeHtml(text);
+    if (!keyword) return escaped;
+    const safe = escapeHtml(keyword).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return escaped.replace(new RegExp(safe, 'gi'), (m) => `<mark>${m}</mark>`);
   }
 
   /* ============================================================
@@ -89,15 +103,13 @@
     });
   }
 
-  /* ---------- 页面切换（带渐变过渡） ---------- */
+  /* ---------- 引导页 / 主页切换（带渐变过渡） ---------- */
   let switching = false;
 
   function enterVault(targetId) {
     if (switching) return;
     switching = true;
     body.classList.remove('gate-active');
-
-    /* 等淡出动画走完再滚动，避免动画期间跳动 */
     setTimeout(() => {
       switching = false;
       if (targetId) {
@@ -118,7 +130,92 @@
   }
 
   /* ============================================================
-   *  二、游戏主页
+   *  二、全屏检索（沉浸搜索）
+   * ============================================================ */
+  function initSearch() {
+    const layer = $('searchLayer');
+    const input = $('searchInput');
+    const form = $('searchBar');
+    const results = $('searchResults');
+    const resultsGrid = $('searchGrid');
+    const resultsEmpty = $('resultEmpty');
+    const s = cfg().search || {};
+
+    setText('searchKicker', s.kicker || '// DATABASE QUERY');
+    setText('searchTitle', s.title || '在仓库中检索');
+    input.placeholder = s.placeholder || '输入游戏名称、分类或标签…';
+    setText('searchSubmit', s.buttonText ? (s.buttonText + ' ›') : '检索 ›');
+
+    /* 打开检索界面 */
+    function openSearch() {
+      body.classList.add('search-open');
+      setTimeout(() => input.focus(), 420);
+    }
+
+    /* 关闭并复位 */
+    function closeSearch() {
+      body.classList.remove('search-open', 'search-results');
+      input.value = '';
+      results.hidden = true;
+      resultsGrid.innerHTML = '';
+      layer.scrollTop = 0;
+    }
+
+    /* 执行一次检索 */
+    function runSearch() {
+      const keyword = input.value.trim();
+      if (!keyword) { toast('请输入关键词'); input.focus(); return; }
+      const kw = keyword.toLowerCase();
+
+      const list = allGames().filter((g) => {
+        const text = `${g.name || ''} ${g.desc || ''} ${g.category || ''} ${(g.tags || []).join(' ')}`.toLowerCase();
+        return text.includes(kw);
+      });
+
+      /* 切到结果视图（搜索框上移收窄，结果淡入） */
+      body.classList.add('search-results');
+      results.hidden = false;
+      resultsEmpty.hidden = list.length > 0;
+      setText('resultCount', String(list.length));
+      setText('resultKeyword', 'KEYWORD: ' + keyword);
+
+      resultsGrid.innerHTML = '';
+      list.forEach((g, i) => resultsGrid.appendChild(buildCard(g, i, kw)));
+      layer.scrollTop = 0;
+    }
+
+    form.addEventListener('submit', (e) => { e.preventDefault(); runSearch(); });
+    $('searchSubmit').addEventListener('click', (e) => { e.preventDefault(); runSearch(); });
+    $('searchClose').addEventListener('click', closeSearch);
+    $('btnSearch').addEventListener('click', openSearch);
+    $('btnSearchGate').addEventListener('click', openSearch);
+
+    /* 结果状态下继续输入 → 实时更新结果 */
+    input.addEventListener('input', () => {
+      if (body.classList.contains('search-results') && input.value.trim()) runSearch();
+    });
+
+    /* ESC 退出检索 */
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && body.classList.contains('search-open')) closeSearch();
+    });
+
+    /* 热门词（在 data/games.js 的 search.hotwords 里改） */
+    const hotBox = $('searchHot');
+    (s.hotwords || []).forEach((word) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.textContent = word;
+      btn.addEventListener('click', () => {
+        input.value = word;
+        runSearch();
+      });
+      hotBox.appendChild(btn);
+    });
+  }
+
+  /* ============================================================
+   *  三、游戏主页
    * ============================================================ */
   function initSiteInfo() {
     const c = cfg();
@@ -152,9 +249,7 @@
         const a = document.createElement('a');
         a.href = item.href || '#';
         a.textContent = item.label;
-        a.dataset.target = (item.href || '').replace('#', '');
         if (isGate) {
-          /* 引导页上的导航：点了就过渡到主页并滚到对应位置 */
           a.addEventListener('click', (e) => {
             const href = item.href || '';
             if (href.startsWith('#') && href.length > 1) {
@@ -212,14 +307,8 @@
   }
 
   function render() {
-    const keyword = (searchInput.value || '').trim().toLowerCase();
     const total = allGames().length;
-
-    const list = allGames().filter((g) => {
-      const matchCat = activeCategory === '全部' || g.category === activeCategory;
-      const text = `${g.name || ''} ${g.desc || ''} ${g.category || ''} ${(g.tags || []).join(' ')}`.toLowerCase();
-      return matchCat && (!keyword || text.includes(keyword));
-    });
+    const list = allGames().filter((g) => activeCategory === '全部' || g.category === activeCategory);
 
     grid.innerHTML = '';
     emptyState.style.display = list.length ? 'none' : 'block';
@@ -228,7 +317,8 @@
     setText('gameCount', list.length === total ? `共 ${total} 个` : `${list.length} / ${total} 个`);
   }
 
-  function buildCard(g, index) {
+  /* 卡片：keyword 有值时把命中的文字高亮（第三个参数可选） */
+  function buildCard(g, index, keyword) {
     const card = document.createElement('article');
     card.className = 'card';
 
@@ -271,14 +361,16 @@
 
     const title = document.createElement('h3');
     title.className = 'card-title';
-    title.textContent = g.name || '未命名';
+    if (keyword) title.innerHTML = highlight(g.name || '未命名', keyword);
+    else title.textContent = g.name || '未命名';
     title.title = g.name || '';
     bodyEl.appendChild(title);
 
     if (g.desc) {
       const desc = document.createElement('p');
       desc.className = 'card-desc';
-      desc.textContent = g.desc;
+      if (keyword) desc.innerHTML = highlight(g.desc, keyword);
+      else desc.textContent = g.desc;
       bodyEl.appendChild(desc);
     }
 
@@ -287,7 +379,8 @@
       tags.className = 'card-tags';
       g.tags.forEach((t) => {
         const s = document.createElement('span');
-        s.textContent = t;
+        if (keyword) s.innerHTML = highlight(t, keyword);
+        else s.textContent = t;
         tags.appendChild(s);
       });
       bodyEl.appendChild(tags);
@@ -360,15 +453,14 @@
   }
 
   /* ============================================================
-   *  三、启动
+   *  四、启动
    * ============================================================ */
   initGate();
   initSiteInfo();
   initFilters();
+  initSearch();
   render();
 
-  /* 事件绑定 */
-  searchInput.addEventListener('input', render);
   $('btnEnter').addEventListener('click', () => enterVault());
   $('btnGate').addEventListener('click', backToGate);
   $('btnHome').addEventListener('click', (e) => { e.preventDefault(); backToGate(); });
