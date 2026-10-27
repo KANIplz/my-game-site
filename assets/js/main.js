@@ -36,6 +36,16 @@
     toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2000);
   }
 
+  /* 支持 WebP 的浏览器就用 WebP：同样的画质，体积只有 JPG 的一半左右 */
+  const supportsWebp = (() => {
+    try {
+      return document.createElement('canvas').toDataURL('image/webp').indexOf('data:image/webp') === 0;
+    } catch (e) { return false; }
+  })();
+  function imgSrc(path) {
+    return supportsWebp ? String(path).replace(/\.(jpe?g|png)$/i, '.webp') : path;
+  }
+
   function gradientOf(name) {
     let hash = 0;
     for (let i = 0; i < name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) >>> 0;
@@ -77,7 +87,7 @@
     setText('gateEnterEn', gate.enterEn || 'ENTER');
     setText('gateNote', gate.note || '');
 
-    /* 全屏背景图：多张自动轮播（6 秒切换）；没配图就用默认几何占位背景 */
+    /* 全屏背景图：多张自动轮播；没配图就用默认几何占位背景 */
     const layers = [$('gateBg'), $('gateBg2')].filter(Boolean);
     if (!layers.length) return;
     const imgs = (gate.images || []).filter(Boolean);
@@ -85,16 +95,27 @@
       layers[0].classList.add('show');
       return;
     }
+
+    /* 关键：先把图片完整下载到内存，下载完再淡入，
+       这样不会看到「一格一格刷出来」的加载过程 */
+    function fadeIn(layer, path) {
+      const pre = new Image();
+      pre.onload = () => {
+        layer.style.backgroundImage = 'url("' + path + '")';
+        layer.classList.add('show');
+      };
+      pre.onerror = () => {};   // 加载失败就保持默认占位背景
+      pre.src = path;
+    }
+
     let cur = 0;
-    layers[0].style.backgroundImage = 'url("' + imgs[0] + '")';
-    layers[0].classList.add('show');
+    fadeIn(layers[0], imgSrc(imgs[0]));
     if (imgs.length > 1) {
       setInterval(() => {
         cur = (cur + 1) % imgs.length;
         const showEl = layers.find((el) => !el.classList.contains('show'));
         const hideEl = layers.find((el) => el.classList.contains('show'));
-        showEl.style.backgroundImage = 'url("' + imgs[cur] + '")';
-        showEl.classList.add('show');
+        fadeIn(showEl, imgSrc(imgs[cur]));
         hideEl.classList.remove('show');
       }, 15000);   /* 轮播间隔：15000 = 15 秒换一张 */
     }
@@ -106,6 +127,7 @@
   function enterVault(targetId) {
     if (switching) return;
     switching = true;
+    loadBanner();   /* 进入主页时才加载横幅图，首屏只加载大门背景 */
     body.classList.remove('gate-active');
     setTimeout(() => {
       switching = false;
@@ -231,11 +253,8 @@
     setText('footerText', c.footerText || '');
     setText('year', String(new Date().getFullYear()));
 
-    /* 顶部横幅：图片 + 左侧站名 */
-    const banner = c.banner || {};
-    setText('bannerTitle', banner.title || name);
-    const bannerEl = $('banner');
-    if (bannerEl && banner.image) bannerEl.style.backgroundImage = 'url("' + banner.image + '")';
+    /* 顶部横幅：文字先显示，图片等进入主页时才加载（不拖慢首屏） */
+    setText('bannerTitle', (c.banner || {}).title || name);
 
     if (c.notice) {
       $('notice').style.display = '';
@@ -291,6 +310,16 @@
     setText('statGames', String(list.length));
     setText('statLinks', String(linkCount));
     setText('statCats', String(cats.size));
+  }
+
+  /* 横幅图片延迟加载：只在进入主页（或直达游戏页）时才下载，不拖慢首屏 */
+  let bannerLoaded = false;
+  function loadBanner() {
+    if (bannerLoaded) return;
+    bannerLoaded = true;
+    const image = (cfg().banner || {}).image;
+    const el = $('banner');
+    if (el && image) el.style.backgroundImage = 'url("' + imgSrc(image) + '")';
   }
 
   function initFilters() {
@@ -471,6 +500,7 @@
   /* 直接带 #games / #filters 打开时，跳过引导页 */
   const hashId = (location.hash || '').replace('#', '');
   if (hashId === 'games' || hashId === 'filters') {
+    loadBanner();
     body.classList.remove('gate-active');
   }
 })();
