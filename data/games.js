@@ -14,9 +14,9 @@ const SITE_CONFIG = {
 
   gate: {
     images: [
-      // 'assets/img/gate1.jpg',
-      // 'assets/img/gate2.jpg',
-      // 'assets/img/gate3.jpg'
+      'assets/img/gate1.jpg',   // 大门页背景（多张会 6 秒自动轮播）
+      'assets/img/gate2.jpg',
+      'assets/img/gate3.jpg'
     ],
     title: '我的游戏库',                  // 大门页大标题
     subtitle: 'GAME VAULT',              // 大标题下的英文

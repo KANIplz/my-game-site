@@ -11,3 +11,8 @@ node_modules/
 
 # 日志文件
 *.log
+
+# 原始大图（网页实际用的是 assets/img/ 里压缩后的版本，避免把几十 MB 传上去）
+/1.jpg
+/2.jpg
+/3.jpg
