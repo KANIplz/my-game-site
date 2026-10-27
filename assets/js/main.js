@@ -96,7 +96,7 @@
         showEl.style.backgroundImage = 'url("' + imgs[cur] + '")';
         showEl.classList.add('show');
         hideEl.classList.remove('show');
-      }, 6000);
+      }, 15000);   /* 轮播间隔：15000 = 15 秒换一张 */
     }
   }
 

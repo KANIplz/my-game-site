@@ -28,8 +28,8 @@ const SITE_CONFIG = {
 
   /* ---------- 2. 主页顶部横幅（一长条图片，菜单栏在它下方） ---------- */
   banner: {
-    image: '',                // 横幅图片路径，如 'assets/img/banner.jpg'（建议宽长条图，例 1920x400）
-    title: 'KANI分享'         // 横幅左侧显示的文字
+    image: 'assets/img/banner.jpg',  // 横幅图片（宽长条图，1920x450）
+    title: 'KANI'                    // 横幅上显示的文字
   },
 
   /* ---------- 3. 游戏分享页 ---------- */
