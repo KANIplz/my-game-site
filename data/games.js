@@ -50,8 +50,20 @@ const SITE_CONFIG = {
   navItems: [
     { label: '全部游戏', href: '#games' },
     { label: '游戏标签', href: '#filters' },
-    { label: '帮助文档', href: 'README.md' }
+    { label: '我的资料', href: 'profile.html' }   // 个人资料页（类似 Steam 资料页）
   ],
+
+  /* ---------- 5. 个人资料页（profile.html）空着也没关系，以后想填再填 ---------- */
+  profile: {
+    avatar: '',            // 头像图片路径，如 'assets/img/avatar.png'；留空就显示首字母
+    nickname: 'KANI',      // 昵称
+    status: '在线',         // 状态：在线 / 忙碌 / 离线 / 隐身
+    level: 1,              // 等级
+    bio: '这个人很懒，什么都没留下～',  // 个性签名
+    location: '',          // 地区，如 '中国'
+    joined: '',            // 加入时间，如 '2026-10-28'
+    playing: ''            // 正在玩的游戏
+  },
 
   footerText: '本站仅提供网盘链接索引，资源版权归原作者所有。',
   // 页脚分组链接（可自由增删）
@@ -62,7 +74,7 @@ const SITE_CONFIG = {
   ]
 };
 
-/* ---------- 5. 游戏列表 ----------
+/* ---------- 6. 游戏列表 ----------
  * 每个 { } 是一个游戏，复制一段改一改就能加新游戏
  * 字段说明：
  *   name     游戏名称（必填）

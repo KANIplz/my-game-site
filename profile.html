@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>个人资料</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<header class="navbar">
+  <div class="nav-inner">
+    <a class="brand" href="index.html">
+      <span class="brand-logo" id="brandLogo">G</span>
+      <span class="brand-text">
+        <b id="brandName">我的游戏库</b>
+        <span id="brandTag">GAME VAULT</span>
+      </span>
+    </a>
+    <nav class="nav-links" id="navLinks"></nav>
+    <div class="nav-right">
+      <button class="nav-back" id="btnBack" type="button">← 返回主页</button>
+    </div>
+  </div>
+</header>
+
+<main class="profile">
+
+  <!-- 顶部：背景条 + 头像 + 昵称 + 状态 -->
+  <section class="pf-hero">
+    <div class="pf-bg" id="pfBg"></div>
+    <div class="pf-hero-inner">
+      <div class="pf-avatar" id="pfAvatar">K</div>
+      <div class="pf-id">
+        <div class="pf-name-row">
+          <h1 id="pfNick">KANI</h1>
+          <span class="pf-status" id="pfStatus">离线</span>
+          <span class="pf-level">LV <b id="pfLevel">1</b></span>
+        </div>
+        <p class="pf-bio" id="pfBio"></p>
+      </div>
+    </div>
+  </section>
+
+  <div class="pf-grid">
+
+    <!-- 左栏：统计 + 资料 -->
+    <aside class="pf-side">
+      <div class="pf-card">
+        <h3>// STATS 统计</h3>
+        <ul class="pf-stats">
+          <li><span>游戏库</span><b id="pfGames">0</b></li>
+          <li><span>下载链接</span><b id="pfLinks">0</b></li>
+          <li><span>游戏分类</span><b id="pfCats">0</b></li>
+          <li><span>成就</span><b class="dim">未记录</b></li>
+          <li><span>游戏时长</span><b class="dim">未记录</b></li>
+        </ul>
+      </div>
+
+      <div class="pf-card">
+        <h3>// INFO 资料</h3>
+        <ul class="pf-info">
+          <li><span>地区</span><b id="pfLocation">未填写</b></li>
+          <li><span>加入时间</span><b id="pfJoined">未填写</b></li>
+          <li><span>正在玩</span><b id="pfPlaying">未填写</b></li>
+        </ul>
+      </div>
+    </aside>
+
+    <!-- 右栏：几个待填模块（内容以后再填） -->
+    <div class="pf-main">
+      <section class="pf-card">
+        <h3>// RECENT 最近玩过</h3>
+        <div class="pf-empty">暂无记录</div>
+      </section>
+
+      <section class="pf-card">
+        <h3>// ACHIEVEMENTS 成就墙</h3>
+        <div class="pf-empty">暂无成就</div>
+      </section>
+
+      <section class="pf-card">
+        <h3>// SHOWCASE 展示柜</h3>
+        <div class="pf-empty">暂无内容</div>
+      </section>
+    </div>
+
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="footer-bottom" style="max-width:1240px;margin:0 auto;padding:18px 24px;border-top:none;">
+    <span>© <span id="year"></span> <span id="footerName2">我的游戏库</span></span>
+    <span>Powered by GitHub Pages</span>
+  </div>
+</footer>
+
+<script src="data/games.js"></script>
+<script src="assets/js/profile.js"></script>
+</body>
+</html>
