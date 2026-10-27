@@ -405,9 +405,9 @@ body.search-open .search-layer { opacity: 1; visibility: visible; }
 }
 .search-close:hover { color: #0b0c0f; background: var(--primary); border-color: var(--primary); }
 
-/* 中央搜索舞台 */
+/* 中央搜索舞台（flex: 1 0 auto —— 可拉伸但绝不被压缩，保证内容超高时能滚动） */
 .search-stage {
-  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  flex: 1 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: center;
   gap: 20px; padding: 48px 24px; text-align: center;
   transition: justify-content .45s ease, padding .45s ease, gap .45s ease;
 }
@@ -451,7 +451,7 @@ body.search-open .search-layer { opacity: 1; visibility: visible; }
 .search-tip { color: rgba(255,255,255,.28); }
 
 /* 结果视图：搜索框收窄上移，标题变小，热门词隐藏 */
-body.search-results .search-stage { justify-content: flex-start; padding: 30px 24px 22px; gap: 12px; }
+body.search-results .search-stage { flex: 0 0 auto; justify-content: flex-start; padding: 30px 24px 22px; gap: 12px; }
 body.search-results .search-title { font-size: 16px; opacity: .55; }
 body.search-results .search-bar { width: min(720px, 84vw); padding: 12px 16px; }
 body.search-results .search-bar input { font-size: 16px; }
@@ -459,6 +459,7 @@ body.search-results .search-hot { display: none; }
 body.search-results .search-tip { display: none; }
 
 .search-results {
+  flex-shrink: 0;   /* 结果区绝不被压缩，超出视口时由外层滚动 */
   max-width: 1240px; width: 100%; margin: 0 auto; padding: 0 24px 70px;
   animation: resultIn .5s ease both;
 }
